@@ -30,10 +30,44 @@ services:
       - net_cache
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", REDISCLI_AUTH="$$(cat /run/secrets/redis_password)" redis-cli ping | grep -q PONG]
+      test: ["CMD-SHELL", 'REDISCLI_AUTH="$$(cat /run/secrets/redis_password)" redis-cli ping | grep -q PONG']
       interval: 5s
       timeout: 3s
       retries: 20
+
+  backend:
+    build:
+      context: ./backend
+    secrets:
+      - postgres_password
+      - redis_password
+      - django_secret_key
+    environment:
+      - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - REDIS_HOST=${REDIS_HOST}
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./backend:/app
+    networks:
+      - net_database
+      - net_cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 networks:
   net_database:
@@ -48,3 +82,5 @@ secrets:
     file: ./secrets/postgres_password
   redis_password:
     file: ./secrets/redis_password
+  django_secret_key:
+    file: ./secrets/django_secret_key
