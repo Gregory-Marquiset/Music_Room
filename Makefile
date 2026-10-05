@@ -11,6 +11,7 @@ help:
 	@echo "make build		- Build les images"
 	@echo "make up			- Build puis demarre les service (detach)"
 	@echo "make down		- Down"
+	@echo "make test		- Test"
 	@echo ""
 
 build:
