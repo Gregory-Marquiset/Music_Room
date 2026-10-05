@@ -1,0 +1,17 @@
+* text=auto eol=lf
+
+*.sh       text eol=lf
+*.py       text eol=lf
+Makefile   text eol=lf
+Dockerfile text eol=lf
+
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.mp3  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
